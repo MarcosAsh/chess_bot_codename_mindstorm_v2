@@ -1,0 +1,3 @@
+/home/marcos-ashton/CLionProjects/chess_engine_Codename_MindStorm/cmake-build-debug/CMakeFiles/chess_bot.dir
+/home/marcos-ashton/CLionProjects/chess_engine_Codename_MindStorm/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/marcos-ashton/CLionProjects/chess_engine_Codename_MindStorm/cmake-build-debug/CMakeFiles/rebuild_cache.dir
