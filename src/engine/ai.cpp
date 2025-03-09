@@ -2,7 +2,71 @@
 #include "board.h"
 #include "evaluation.h"
 #include <algorithm>
+
+#include <iostream>
+#include <bitset>
+#include <cstdint>
+#include <vector>
 #include <limits>
+#include <stack>
+#include <random>
+#include <unordered_map>
+
+using namespace std;
+
+stack<uint64_t> zobristHistory; // For undoing Zobrist hashes efficiently
+uint64_t zobristTable[12][64];  // Randomized Zobrist keys for hashing
+unordered_map<uint64_t, pair<int, int>> transpositionTable;
+
+// Initialize Zobrist hashing
+void initializeZobrist() {
+    random_device rd;
+    mt19937_64 gen(rd());
+    uniform_int_distribution<uint64_t> dist(0, UINT64_MAX);
+
+    for (int piece = 0; piece < 12; ++piece) {
+        for (int square = 0; square < 64; ++square) {
+            zobristTable[piece][square] = dist(gen);
+        }
+    }
+}
+
+// Define a function to get the maximum evaluation
+int max(int a, int b) {
+    return (a > b) ? a : b;
+}
+
+// Define a function to get the minimum evaluation
+int min(int a, int b) {
+    return (a < b) ? a : b;
+}
+bool isCapture(uint64_t move, bool isWhiteTurn) {
+    uint64_t targetSquare = move; // Assume `move` encodes the target square
+    uint64_t opponentPieces = isWhiteTurn ? blackPieces : whitePieces;
+    return targetSquare & opponentPieces;
+}
+
+bool isCheck(uint64_t move, bool isWhiteTurn) {
+    saveBoardState(isWhiteTurn);
+    makeMove(move, move, isWhiteTurn);
+
+    uint64_t king = isWhiteTurn ? blackKing : whiteKing;
+    bool result = isSquareAttacked(king, !isWhiteTurn);
+
+    undoMove(); // Revert to the original state
+    return result;
+}
+
+int movePriority(uint64_t move, bool isWhiteTurn) {
+    int priority = 0;
+    if (isCapture(move, isWhiteTurn)) {
+        priority += 100; // High priority for captures
+    }
+    if (isCheck(move, isWhiteTurn)) {
+        priority += 50; // Moderate priority for checks
+    }
+    return priority;
+}
 
 // Recursive minimax function with alpha-beta pruning
 int minimax(int depth, bool isMaximizingPlayer, int alpha, int beta, bool isWhiteTurn) {
@@ -129,40 +193,4 @@ Move findBestMove(bool isWhiteTurn, int depth) {
     std::cout << "Best move selected: from " << squareToNotation(bestMove.from) << " to " << squareToNotation(bestMove.to)
               << " with evaluation " << bestMove.evaluation << std::endl;
     return bestMove;
-}
-
-// Function to determine the priority of a move (used for move ordering)
-int movePriority(uint64_t move, bool isWhiteTurn) {
-    int priority = 0;
-
-    // High priority for captures
-    if (isCapture(move, isWhiteTurn)) {
-        priority += 100;
-    }
-
-    // Moderate priority for checks
-    if (isCheck(move, isWhiteTurn)) {
-        priority += 50;
-    }
-
-    return priority;
-}
-
-// Check if a move is a capture
-bool isCapture(uint64_t move, bool isWhiteTurn) {
-    uint64_t targetSquare = move; // Assume `move` encodes the target square
-    uint64_t opponentPieces = isWhiteTurn ? blackPieces : whitePieces;
-    return targetSquare & opponentPieces;
-}
-
-// Check if a move puts the opponent in check
-bool isCheck(uint64_t move, bool isWhiteTurn) {
-    saveBoardState(isWhiteTurn);
-    makeMove(move, move, isWhiteTurn);
-
-    uint64_t king = isWhiteTurn ? blackKing : whiteKing;
-    bool result = isSquareAttacked(king, !isWhiteTurn);
-
-    undoMove(); // Revert to the original state
-    return result;
 }

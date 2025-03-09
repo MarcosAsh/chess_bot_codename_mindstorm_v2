@@ -86,3 +86,4 @@ int countLegalMoves(bool isWhiteTurn) {
 
     return moveCount;
 }
+

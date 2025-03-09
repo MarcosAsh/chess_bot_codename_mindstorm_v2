@@ -1,10 +1,17 @@
-#include <cstdint>
-#include <stack>
-#include <unordered_map>
 #include "board.h"
 #include "../constants.h"
-#include <iostream>
 
+#include <iostream>
+#include <bitset>
+#include <cstdint>
+#include <vector>
+#include <algorithm>
+
+#include <stack>
+#include <random>
+#include <unordered_map>
+
+using namespace std;
 // Initialize the global board instance
 Board b;
 
@@ -21,6 +28,18 @@ std::stack<uint64_t> zobristHistory;
 uint64_t zobristTable[12][64];
 std::unordered_map<uint64_t, std::pair<int, int>> transpositionTable;
 
+// Initialize Zobrist hashing
+void initializeZobrist() {
+    random_device rd;
+    mt19937_64 gen(rd());
+    uniform_int_distribution<uint64_t> dist(0, UINT64_MAX);
+
+    for (int piece = 0; piece < 12; ++piece) {
+        for (int square = 0; square < 64; ++square) {
+            zobristTable[piece][square] = dist(gen);
+        }
+    }
+}
 // Initialize the board to the standard starting position
 void initializePosition() {
     whitePawns = 0x000000000000FF00ULL;

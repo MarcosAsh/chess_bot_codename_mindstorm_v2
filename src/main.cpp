@@ -1,24 +1,31 @@
-#include <iostream>
-#include "gui/gui.h"
 #include "engine/board.h"
 #include "engine/gameloops.h"
+#include <iostream>
 
+
+using namespace std;
+
+// Main function to choose game mode
 int main() {
-    std::cout << "Chess Bot\n";
-    std::cout << "1. Play human vs human\n";
-    std::cout << "2. Play human vs AI\n";
+    initializeZobrist();
+    initializePosition();
+    printBitboard(whitePawns);
+    cout << "Welcome to Chess!\nChoose game mode:\n1. Human vs Human\n2. Human vs Computer\n";
     int choice;
-    std::cin >> choice;
+    cin >> choice;
+    cin.ignore(); // To ignore the newline character left in the input buffer
 
     if (choice == 1) {
         gameLoop();
     } else if (choice == 2) {
-        std::cout << "Want to start as Black or White";
-        bool prefferedSelection;
-        std::cin >> prefferedSelection;
-        computerGameloop(prefferedSelection);
+        cout << "Do you want to play as White? (y/n): ";
+        char colorChoice;
+        cin >> colorChoice;
+        cin.ignore();
+        bool humanPlaysWhite = (colorChoice == 'y' || colorChoice == 'Y');
+        computerGameLoop(humanPlaysWhite);
     } else {
-        std::cerr << "Invalid choice. Exiting.\n";
+        cout << "Invalid choice. Exiting program.\n";
     }
 
     return 0;
