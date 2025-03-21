@@ -6,6 +6,6 @@
 #define GAMELOOPS_H
 
 void gameLoop();
-void computerGameloop(bool humanPlaysWhite);
+void computerGameLoop(bool humanPlaysWhite);
 
 #endif //GAMELOOPS_H

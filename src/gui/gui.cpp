@@ -1,4 +1,5 @@
 #include "gui.h"
+#include "../engine/board.h"
 
 // Global variables
 sf::Vector2i selectedSquare(-1, -1);
@@ -21,7 +22,7 @@ void runGUI() {
     sf::RenderWindow window(sf::VideoMode(TILE_SIZE * BOARD_SIZE, TILE_SIZE * BOARD_SIZE), "Chess GUI");
     sf::Font font;
     if (!font.loadFromFile("assets/arial.ttf")) {
-        std::cerr << "Failed to load font\n";
+        printf("Failed to load font\n");
         return;
     }
 
@@ -132,7 +133,6 @@ void redoMove() {
 }
 
 void generateAIMove(std::vector<std::vector<char>>& board) {
-    std::this_thread::sleep_for(std::chrono::seconds(1)); // Simulate thinking
     board[1][0] = '.'; // Move a pawn forward
     board[2][0] = 'p';
 }
