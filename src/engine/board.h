@@ -59,6 +59,8 @@ struct Board {
     uint64_t whitePawns, whiteKnights, whiteBishops, whiteRooks, whiteQueens, whiteKing;
     uint64_t blackPawns, blackKnights, blackBishops, blackRooks, blackQueens, blackKing;
     uint64_t whitePieces, blackPieces, allPieces;
+
+    int pieceTypeAt(int sq) const;
 };
 
 extern Board b; // Global board instance

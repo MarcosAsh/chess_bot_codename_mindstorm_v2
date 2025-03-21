@@ -1,5 +1,6 @@
 #include "engine/board.h"
 #include "engine/gameloops.h"
+#include "engine/ai.h"
 #include <iostream>
 
 

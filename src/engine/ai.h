@@ -1,9 +1,6 @@
 #ifndef AI_H
 #define AI_H
 
-#include "board.h"
-#include "evaluation.h"
-
 #include <stack>
 #include <unordered_map>
 #include <vector>

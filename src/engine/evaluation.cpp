@@ -152,10 +152,25 @@ int evaluateKingSafety(int side) {
     return score;
 }
 
+// Locate pieces to evalate mobility
+int Board::pieceTypeAt(int sq) const {
+    uint64_t mask = 1ULL << sq;
+
+    if (whitePawns & mask || blackPawns & mask)     return PAWN;
+    if (whiteKnights & mask || blackKnights & mask) return KNIGHT;
+    if (whiteBishops & mask || blackBishops & mask) return BISHOP;
+    if (whiteRooks & mask || blackRooks & mask)     return ROOK;
+    if (whiteQueens & mask || blackQueens & mask)   return QUEEN;
+    if (whiteKing & mask || blackKing & mask)       return KING;
+
+    return -1; // Empty square
+}
+
+
 // Evaluate mobility
 int evaluateMobility(int side) {
     int score = 0;
-    uint64_t pieces = (side == WHITE) ? b.whitePieces : b.blackPieces; // Initialize pieces
+    uint64_t pieces = (side == WHITE) ? b.whitePieces : b.blackPieces;
     uint64_t enemyPieces = (side == WHITE) ? b.blackPieces : b.whitePieces;
     uint64_t allPieces = b.whitePieces | b.blackPieces;
 
@@ -164,11 +179,11 @@ int evaluateMobility(int side) {
         pieces &= pieces - 1;
 
         int mobility = 0;
+        int pieceType = b.pieceTypeAt(sq);
 
-        // Calculate mobility for each piece type
-        switch (b.pieces[sq]) {
+        switch (pieceType) {
             case KNIGHT:
-                for (int dir = 0; dir < 8; dir++) { // 8 knight directions
+                for (int dir = 0; dir < 8; dir++) {
                     int targetSq = sq + vector[KNIGHT][dir];
                     if (IS_SQ(targetSq) && !(allPieces & (1ULL << targetSq))) {
                         mobility++;
@@ -179,24 +194,29 @@ int evaluateMobility(int side) {
             case BISHOP:
             case ROOK:
             case QUEEN:
-                for (int dir = 0; dir < 8; dir++) { // 8 directions for sliding pieces
+                for (int dir = 0; dir < 8; dir++) {
+                    int delta = vector[pieceType][dir];
                     int targetSq = sq;
+
                     while (true) {
-                        targetSq += vector[b.pieces[sq]][dir];
+                        targetSq += delta;
                         if (!IS_SQ(targetSq)) break;
                         if (allPieces & (1ULL << targetSq)) break;
                         mobility++;
                     }
                 }
             break;
+
+            default:
+                break; // skip pawns, kings for mobility here
         }
 
-        // Bonus for controlling central squares
+        // Central square bonus
         if (CENTER_MASK & (1ULL << sq)) {
             mobility += 2;
         }
 
-        // Bonus for controlling squares near the enemy king
+        // Proximity to enemy king
         int enemyKingSq = (side == WHITE) ? __builtin_ctzll(b.blackKing) : __builtin_ctzll(b.whiteKing);
         if (e.sqNearK[!side][enemyKingSq][sq]) {
             mobility += 3;
@@ -207,6 +227,7 @@ int evaluateMobility(int side) {
 
     return score;
 }
+
 
 // Evaluate the current position
 int evaluatePosition() {
